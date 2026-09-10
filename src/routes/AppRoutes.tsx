@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
 import MainLayout from "../layouts/MainLayout";
-import AssetLibrary from "../assets/pages/AssetLibrary";
+import AssetLibrary from "../pages/AssetLibrary";
 import Login from "../pages/Login";
 import AuthLayout from "../layouts/AuthLayout";
 import Register from "../pages/Register";
@@ -12,8 +12,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<MainLayout />}>
+          <Route path="/" element={<Dashboard />} />
           <Route path="/assets" element={<AssetLibrary />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/gallery" element={<Gallery />} />
         </Route>
 

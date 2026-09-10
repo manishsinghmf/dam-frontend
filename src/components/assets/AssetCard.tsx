@@ -8,15 +8,47 @@ import {
   HardDrive,
 } from "lucide-react";
 
-import type { Asset } from "../types/Assets";
+import type { Asset } from "../../types/Assets";
 
 type AssetCardProps = {
   asset: Asset;
 };
 
+
+type AssetIconProps = {
+  type?: string;
+  className?: string;
+};
+
+const AssetIcon = ({ type, className }: AssetIconProps) => {
+  const assetType = type?.toLowerCase() ?? "";
+
+  if (assetType.includes("image")) {
+    return <ImageIcon className={className} />;
+  }
+
+  if (assetType.includes("video")) {
+    return <FileVideo className={className} />;
+  }
+
+  if (assetType.includes("audio")) {
+    return <FileAudio className={className} />;
+  }
+
+  if (
+    assetType.includes("pdf") ||
+    assetType.includes("document") ||
+    assetType.includes("text")
+  ) {
+    return <FileText className={className} />;
+  }
+
+  return <File className={className} />;
+};
+
 function AssetCard({ asset }: AssetCardProps) {
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
+    if (bytes === 0) { return "0 Bytes"; }
 
     const units = ["Bytes", "KB", "MB", "GB"];
     const index = Math.floor(Math.log(bytes) / Math.log(1024));
@@ -24,32 +56,6 @@ function AssetCard({ asset }: AssetCardProps) {
     return `${(bytes / Math.pow(1024, index)).toFixed(
       index === 0 ? 0 : 1
     )} ${units[index]}`;
-  };
-
-  const getAssetIcon = () => {
-    const type = asset.type?.toLowerCase() ?? "";
-
-    if (type.includes("image")) {
-      return ImageIcon;
-    }
-
-    if (type.includes("video")) {
-      return FileVideo;
-    }
-
-    if (type.includes("audio")) {
-      return FileAudio;
-    }
-
-    if (
-      type.includes("pdf") ||
-      type.includes("document") ||
-      type.includes("text")
-    ) {
-      return FileText;
-    }
-
-    return File;
   };
 
   const getStatusStyle = () => {
@@ -72,15 +78,10 @@ function AssetCard({ asset }: AssetCardProps) {
     }
   };
 
-  const AssetIcon = getAssetIcon();
-
   return (
     <article className="group overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-slate-200/60">
 
-      {/* =====================================================
-          THUMBNAIL
-      ====================================================== */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+      <div className="relative aspect-4/3 overflow-hidden bg-slate-100">
 
         {asset.thumbnailUrl ? (
           <img
@@ -90,9 +91,12 @@ function AssetCard({ asset }: AssetCardProps) {
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+          <div className="flex h-full w-full flex-col items-center justify-center bg-linear-to-br from-slate-50 to-slate-100">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-              <AssetIcon className="h-7 w-7 text-indigo-500" />
+              <AssetIcon
+                type={asset.type}
+                className="h-7 w-7 text-indigo-500"
+              />
             </div>
 
             <p className="mt-3 text-xs font-medium text-slate-400">
@@ -101,8 +105,7 @@ function AssetCard({ asset }: AssetCardProps) {
           </div>
         )}
 
-        {/* Gradient overlay */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-slate-950/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
         {/* Type badge */}
         <div className="absolute left-3 top-3">
@@ -121,9 +124,6 @@ function AssetCard({ asset }: AssetCardProps) {
         </button>
       </div>
 
-      {/* =====================================================
-          INFORMATION
-      ====================================================== */}
       <div className="p-4">
 
         {/* Name */}
@@ -157,19 +157,18 @@ function AssetCard({ asset }: AssetCardProps) {
           </span>
         </div>
 
-        {/* Status */}
         <div className="mt-4">
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${getStatusStyle()}`}
           >
             <span
               className={`h-1.5 w-1.5 rounded-full ${asset.status?.toLowerCase() === "processing" ||
-                  asset.status?.toLowerCase() === "pending"
-                  ? "animate-pulse bg-amber-500"
-                  : asset.status?.toLowerCase() === "failed" ||
-                    asset.status?.toLowerCase() === "error"
-                    ? "bg-red-500"
-                    : "bg-emerald-500"
+                asset.status?.toLowerCase() === "pending"
+                ? "animate-pulse bg-amber-500"
+                : asset.status?.toLowerCase() === "failed" ||
+                  asset.status?.toLowerCase() === "error"
+                  ? "bg-red-500"
+                  : "bg-emerald-500"
                 }`}
             />
 

@@ -1,4 +1,4 @@
-import AssetUploader from "../components/AssetUploader";
+import AssetUploader from "../components/assets/AssetUploader";
 
 function AssetLibrary() {
   return (

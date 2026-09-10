@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   Eye,
@@ -9,17 +10,56 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { AuthService } from "../services/AuthService";
+
 const Login = () => {
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [rememberMe, setRememberMe] = useState<boolean>(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
 
-    // TODO: Connect login API
-    console.log({
-      rememberMe,
-    });
+    setLoading(true);
+    setError("");
+
+    try {
+      const formData = new FormData(event.currentTarget);
+
+      const email = formData.get("email");
+      const password = formData.get("password");
+
+      if (
+        typeof email !== "string" ||
+        typeof password !== "string"
+      ) {
+        setError("Invalid email or password.");
+        return;
+      }
+
+      const response = await AuthService.login({
+        email,
+        password,
+      });
+
+      console.log("Login successful:", response);
+
+      navigate("/");
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Login failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -175,6 +215,7 @@ const Login = () => {
               </p>
 
             </div>
+
             <form
               onSubmit={handleSubmit}
               className="space-y-5"
@@ -268,6 +309,7 @@ const Login = () => {
 
                 <input
                   type="checkbox"
+                  name="rememberMe"
                   checked={rememberMe}
                   onChange={(event) =>
                     setRememberMe(event.target.checked)
@@ -281,21 +323,35 @@ const Login = () => {
 
               </label>
 
+              {error && (
+                <p className="text-sm font-medium text-red-600">
+                  {error}
+                </p>
+              )}
+
               <button
                 type="submit"
-                className="group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition-all duration-200 hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-600/25 active:scale-[0.99]"
+                disabled={loading}
+                className="group flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition-all duration-200 hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-600/25 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
               >
+
                 <span>
-                  Sign in to workspace
+                  {loading
+                    ? "Signing in..."
+                    : "Sign in to workspace"}
                 </span>
 
-                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                {!loading && (
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                )}
+
               </button>
 
             </form>
 
             <p className="mt-8 text-center text-sm text-slate-500">
               Don't have an account?{" "}
+
               <a
                 href="/register"
                 className="font-semibold text-indigo-600 transition-colors hover:text-indigo-700"

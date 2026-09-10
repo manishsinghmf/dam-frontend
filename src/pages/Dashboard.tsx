@@ -12,9 +12,9 @@ import {
   Files,
 } from "lucide-react";
 
-import { AssetsService } from "../assets/services/AssetsService";
-import type { Asset } from "../assets/types/Assets";
-import AssetCard from "../assets/components/AssetCard";
+import { AssetsService } from "../services/AssetsService";
+import type { Asset } from "../types/Assets";
+import AssetCard from "../components/assets/AssetCard";
 
 function Dashboard() {
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -39,19 +39,16 @@ function Dashboard() {
     fetchAssets();
   }, []);
 
-  /* ============================================================
-     STATISTICS
-  ============================================================ */
 
   const statistics = useMemo(() => {
     const totalAssets = assets.length;
 
     const images = assets.filter((asset) =>
-      asset.type?.toLowerCase().startsWith("image/")
+      asset.type?.toLowerCase().startsWith("image")
     ).length;
 
     const videos = assets.filter((asset) =>
-      asset.type?.toLowerCase().startsWith("video/")
+      asset.type?.toLowerCase().startsWith("video")
     ).length;
 
     const processing = assets.filter((asset) => {
@@ -81,9 +78,6 @@ function Dashboard() {
     };
   }, [assets]);
 
-  /* ============================================================
-     RECENT ASSETS
-  ============================================================ */
 
   const recentAssets = useMemo(() => {
     return [...assets].slice(0, 4);
@@ -91,10 +85,6 @@ function Dashboard() {
 
   return (
     <div className="mx-auto w-full max-w-7xl">
-
-      {/* ========================================================
-          HEADER
-      ========================================================= */}
       <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
 
         <div>
@@ -113,7 +103,7 @@ function Dashboard() {
         </div>
 
         <a
-          href="/assets/upload"
+          href="/assets"
           className="group flex h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition-all hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-600/20 active:scale-[0.98]"
         >
           <UploadCloud className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" />
@@ -122,9 +112,6 @@ function Dashboard() {
         </a>
       </div>
 
-      {/* ========================================================
-          STAT CARDS
-      ========================================================= */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
         <StatCard
@@ -156,9 +143,6 @@ function Dashboard() {
         />
       </div>
 
-      {/* ========================================================
-          MAIN GRID
-      ========================================================= */}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
 
         {/* Recent assets */}
@@ -177,7 +161,7 @@ function Dashboard() {
             </div>
 
             <a
-              href="/assets"
+              href="/gallery"
               className="group flex items-center gap-1.5 text-sm font-semibold text-indigo-600 transition hover:text-indigo-700"
             >
               View all
@@ -202,9 +186,6 @@ function Dashboard() {
           )}
         </section>
 
-        {/* ======================================================
-            RIGHT SIDEBAR
-        ======================================================= */}
         <aside className="space-y-6">
 
           {/* Storage */}
@@ -222,9 +203,6 @@ function Dashboard() {
         </aside>
       </div>
 
-      {/* ========================================================
-          QUICK ACTIONS
-      ========================================================= */}
       <section className="mt-8">
 
         <div className="mb-5">
@@ -266,10 +244,6 @@ function Dashboard() {
   );
 }
 
-/* ================================================================
-   STAT CARD
-================================================================ */
-
 interface StatCardProps {
   title: string;
   value: string;
@@ -309,10 +283,6 @@ function StatCard({
     </div>
   );
 }
-
-/* ================================================================
-   STORAGE CARD
-================================================================ */
 
 interface StorageCardProps {
   used: number;
@@ -374,10 +344,6 @@ function StorageCard({
     </div>
   );
 }
-
-/* ================================================================
-   PROCESSING CARD
-================================================================ */
 
 interface ProcessingCardProps {
   processing: number;
@@ -462,16 +428,9 @@ function ProcessingCard({
   );
 }
 
-/*
- * Placeholder replaced below by a cleaner approach.
- */
 function assetsReadyCountPlaceholder(): number {
   return 0;
 }
-
-/* ================================================================
-   QUICK ACTION
-================================================================ */
 
 interface QuickActionProps {
   icon: React.ElementType;
@@ -510,10 +469,6 @@ function QuickAction({
   );
 }
 
-/* ================================================================
-   LOADING
-================================================================ */
-
 function RecentAssetsSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -522,7 +477,7 @@ function RecentAssetsSkeleton() {
           key={item}
           className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
         >
-          <div className="aspect-[4/3] animate-pulse bg-slate-100" />
+          <div className="aspect-4/3 animate-pulse bg-slate-100" />
 
           <div className="space-y-3 p-4">
             <div className="h-4 w-3/4 animate-pulse rounded bg-slate-100" />
@@ -535,13 +490,9 @@ function RecentAssetsSkeleton() {
   );
 }
 
-/* ================================================================
-   EMPTY
-================================================================ */
-
 function EmptyRecentAssets() {
   return (
-    <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white px-6 text-center">
+    <div className="flex min-h-75 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white px-6 text-center">
 
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50">
         <ImageIcon className="h-6 w-6 text-indigo-500" />
@@ -566,10 +517,6 @@ function EmptyRecentAssets() {
     </div>
   );
 }
-
-/* ================================================================
-   FILE SIZE
-================================================================ */
 
 function formatFileSize(bytes: number): string {
   if (bytes === 0) {

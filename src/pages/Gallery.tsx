@@ -10,9 +10,9 @@ import {
   UploadCloud,
 } from "lucide-react";
 
-import { AssetsService } from "../assets/services/AssetsService";
-import type { Asset } from "../assets/types/Assets";
-import AssetCard from "../assets/components/AssetCard";
+import { AssetsService } from "../services/AssetsService";
+import type { Asset } from "../types/Assets";
+import AssetCard from "../components/assets/AssetCard";
 type ViewMode = "grid" | "list";
 
 type SortOption =
@@ -72,10 +72,6 @@ function Gallery() {
     fetchAssets();
   }, []);
 
-  /* ============================================================
-     FILTER + SEARCH + SORT
-  ============================================================ */
-
   const filteredAssets = useMemo(() => {
     let result = [...assets];
 
@@ -129,9 +125,6 @@ function Gallery() {
   return (
     <div className="mx-auto w-full max-w-7xl">
 
-      {/* ========================================================
-          HEADER
-      ========================================================= */}
       <div className="mb-7 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
 
         <div>
@@ -153,7 +146,7 @@ function Gallery() {
         </div>
 
         <a
-          href="/assets/upload"
+          href="/assets"
           className="flex h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700"
         >
           <UploadCloud className="h-4 w-4" />
@@ -162,9 +155,6 @@ function Gallery() {
         </a>
       </div>
 
-      {/* ========================================================
-          TOOLBAR
-      ========================================================= */}
       <div className="mb-6 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm">
 
         <div className="flex flex-col gap-3 xl:flex-row">

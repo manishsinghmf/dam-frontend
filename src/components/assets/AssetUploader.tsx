@@ -7,7 +7,6 @@ import {
   FileVideo,
   UploadCloud,
   X,
-  CheckCircle2,
   ShieldCheck,
 } from "lucide-react";
 
@@ -50,7 +49,7 @@ function AssetUploader() {
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
+    if (bytes === 0) { return "0 Bytes"; }
 
     const units = ["Bytes", "KB", "MB", "GB"];
     const index = Math.floor(
@@ -81,9 +80,6 @@ function AssetUploader() {
   return (
     <div className="w-full">
 
-      {/* =====================================================
-          UPLOADER CARD
-      ====================================================== */}
       <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
 
         {/* Header */}
@@ -120,15 +116,11 @@ function AssetUploader() {
           onSubmit={handleFormSubmit}
           encType="multipart/form-data"
         >
-
-          {/* =================================================
-              DROPZONE
-          ================================================== */}
           <div
             {...getRootProps()}
-            className={`group relative flex min-h-[260px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-300 ${isDragActive
-                ? "border-indigo-500 bg-indigo-50/80"
-                : "border-slate-200 bg-slate-50/60 hover:border-indigo-300 hover:bg-indigo-50/30"
+            className={`group relative flex min-h-65 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-300 ${isDragActive
+              ? "border-indigo-500 bg-indigo-50/80"
+              : "border-slate-200 bg-slate-50/60 hover:border-indigo-300 hover:bg-indigo-50/30"
               }`}
           >
             <input {...getInputProps()} />
@@ -138,8 +130,8 @@ function AssetUploader() {
 
             <div
               className={`relative flex h-16 w-16 items-center justify-center rounded-2xl transition-all duration-300 ${isDragActive
-                  ? "scale-110 bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
-                  : "bg-white text-indigo-500 shadow-sm ring-1 ring-slate-200 group-hover:scale-105 group-hover:shadow-md"
+                ? "scale-110 bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
+                : "bg-white text-indigo-500 shadow-sm ring-1 ring-slate-200 group-hover:scale-105 group-hover:shadow-md"
                 }`}
             >
               <UploadCloud className="h-7 w-7" />
@@ -177,9 +169,6 @@ function AssetUploader() {
             </p>
           </div>
 
-          {/* =================================================
-              SELECTED FILES
-          ================================================== */}
           {files.length > 0 && (
             <div className="mt-7">
 
@@ -238,7 +227,6 @@ function AssetUploader() {
                         </div>
                       </div>
 
-                      {/* Remove */}
                       <button
                         type="button"
                         onClick={() => removeFile(file)}
@@ -254,9 +242,6 @@ function AssetUploader() {
             </div>
           )}
 
-          {/* =================================================
-              UPLOAD BUTTON
-          ================================================== */}
           <button
             type="submit"
             disabled={files.length === 0}
@@ -271,9 +256,6 @@ function AssetUploader() {
           </button>
         </form>
 
-        {/* =====================================================
-            FOOTER
-        ====================================================== */}
         <div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-slate-400">
           <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
 
