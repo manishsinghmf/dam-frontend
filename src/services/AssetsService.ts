@@ -1,9 +1,5 @@
 import type { Asset, AssetStatus } from "../types/Assets";
-
-import { env } from "../config/env";
 import { apiClient } from "./ApiClient";
-
-const backendUrl = env.backendUrl;
 
 type BackendAsset = {
   _id: string;
@@ -18,10 +14,6 @@ type BackendAsset = {
   };
   createdAt: string;
   updatedAt: string;
-};
-
-type GetAssetsResponse = {
-  assets: BackendAsset[];
 };
 
 type UploadAssetResponse = {
