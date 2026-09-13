@@ -6,10 +6,13 @@ import type {
   RegisterResponse,
 } from "../types/Auth";
 
+const backendUrl = env.backendUrl;
+
 export const AuthService = {
+
   async login(payload: LoginPayload): Promise<LoginResponse> {
     const response = await fetch(
-      `${env.backendUrl}/api/auth/login`,
+      `${backendUrl}/api/auth/login`,
       {
         method: "POST",
         headers: {
@@ -25,6 +28,8 @@ export const AuthService = {
       throw new Error(data.message || "Login failed");
     }
 
+    localStorage.setItem("token", data.accessToken);
+
     return data;
   },
 
@@ -32,7 +37,7 @@ export const AuthService = {
     payload: RegisterPayload
   ): Promise<RegisterResponse> {
     const response = await fetch(
-      `${env.backendUrl}/api/auth/register`,
+      `${backendUrl}/api/auth/register`,
       {
         method: "POST",
         headers: {
@@ -49,5 +54,9 @@ export const AuthService = {
     }
 
     return data;
+  },
+
+  logout(): void {
+    localStorage.removeItem("token");
   },
 };

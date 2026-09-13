@@ -17,7 +17,7 @@ function GalleryList({
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[700px]">
+        <table className="w-full min-w-175">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50/70">
               <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">

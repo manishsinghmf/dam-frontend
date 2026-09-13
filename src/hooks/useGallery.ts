@@ -85,8 +85,8 @@ function useGallery() {
     }
 
     if (filter !== "all") {
-      result = result.filter((asset) =>
-        asset.type?.toLowerCase().startsWith(`${filter}/`)
+      result = result.filter(
+        (asset) => asset.type === filter
       );
     }
 
@@ -102,11 +102,17 @@ function useGallery() {
           return second.size - first.size;
 
         case "oldest":
-          return first.id - second.id;
+          return (
+            new Date(first.createdAt).getTime() -
+            new Date(second.createdAt).getTime()
+          );
 
         case "newest":
         default:
-          return second.id - first.id;
+          return (
+            new Date(second.createdAt).getTime() -
+            new Date(first.createdAt).getTime()
+          );
       }
     });
 

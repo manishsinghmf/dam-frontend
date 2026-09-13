@@ -1,45 +1,121 @@
-import type { Asset } from "../types/Assets";
+import type { Asset, AssetStatus } from "../types/Assets";
 
-const mockAllAssets: Asset[] = [
-  {
-    id: 1,
-    name: "product-banner.jpg",
-    type: "image",
-    size: 2457600,
-    status: "READY",
-    thumbnailUrl: "https://images.pexels.com/photos/1037992/pexels-photo-1037992.jpeg",
-    createdAt: "2026-08-31T10:30:00Z",
-  },
-  {
-    id: 2,
-    name: "marketing-video.mp4",
-    type: "video",
-    size: 125829120,
-    status: "PROCESSING",
-    createdAt: "2026-08-31T11:00:00Z",
-  },
-];
+import { env } from "../config/env";
+import { apiClient } from "./ApiClient";
+
+const backendUrl = env.backendUrl;
+
+type BackendAsset = {
+  _id: string;
+  ownerId: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  status: AssetStatus;
+  storage: {
+    bucket: string;
+    key: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+};
+
+type GetAssetsResponse = {
+  assets: BackendAsset[];
+};
+
+type UploadAssetResponse = {
+  asset: BackendAsset;
+};
+
+const getAssetType = (
+  mimeType: string,
+): Asset["type"] => {
+  if (mimeType.startsWith("image/")) {
+    return "image";
+  }
+
+  if (mimeType.startsWith("video/")) {
+    return "video";
+  }
+
+  if (mimeType.startsWith("audio/")) {
+    return "audio";
+  }
+
+  return "document";
+};
+
+const mapAsset = (
+  asset: BackendAsset,
+): Asset => {
+  return {
+    id: asset._id,
+    ownerId: asset.ownerId,
+    name: asset.originalName,
+    type: getAssetType(asset.mimeType),
+    size: asset.size,
+    status: asset.status,
+    storage: asset.storage,
+    createdAt: asset.createdAt,
+    updatedAt: asset.updatedAt,
+  };
+};
 
 export const AssetsService = {
-
   async fetchAllAssets(): Promise<Asset[]> {
-    try {
-      // UNCOMMENT THIS WHEN BACKEND IS READY:
-      // const response = await fetch("/api/assets");
-      // if (!response.ok) {
-      //   throw new Error("Failed to fetch assets");
-      // }
-      // return await response.json();
+    const token = localStorage.getItem("token");
 
-      // --- MOCK MODE ---
-      // Instructor Tip: We use a short Promise timeout to simulate a real loading delay (500ms)
-      // This helps you test your UI loading spinners accurately!
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      return mockAllAssets;
-    } catch (error) {
-      console.error("Error fetching assets:", error);
-      throw error;
+    if (!token) {
+      throw new Error("Authentication required");
     }
-  }
-}
+
+    const response = await apiClient(
+      `/api/asset`,
+      {
+        method: "GET"
+      },
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Failed to fetch assets",
+      );
+    }
+
+    return data.assets.map(mapAsset);
+  },
+
+  async uploadAsset(file: File): Promise<Asset> {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      throw new Error("Authentication required");
+    }
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    const response = await apiClient(
+      `/api/asset`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
+    const data: UploadAssetResponse = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        (data as { message?: string }).message ||
+        "Failed to upload asset",
+      );
+    }
+
+    return mapAsset(data.asset);
+  },
+};

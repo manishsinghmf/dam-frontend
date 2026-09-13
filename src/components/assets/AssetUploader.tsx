@@ -9,56 +9,92 @@ import {
   X,
   ShieldCheck,
 } from "lucide-react";
+import { AssetsService } from "../../services/AssetsService";
+
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 function AssetUploader() {
   const [files, setFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState("");
 
   const {
     getRootProps,
     getInputProps,
     isDragActive,
   } = useDropzone({
-    multiple: true,
-    maxSize: 50 * 1024 * 1024,
+    multiple: false,
+    maxSize: MAX_FILE_SIZE,
 
     onDrop: (acceptedFiles) => {
-      setFiles((previousFiles) => [
-        ...previousFiles,
-        ...acceptedFiles,
-      ]);
+      setError("");
+
+      if (acceptedFiles.length > 0) {
+        setFiles([acceptedFiles[0]]);
+      }
+    },
+
+    onDropRejected: (rejectedFiles) => {
+      setError(
+        rejectedFiles[0]?.errors[0]?.message ||
+        "File could not be selected.",
+      );
     },
   });
 
-  const handleFormSubmit = (
-    event: React.FormEvent<HTMLFormElement>
+  const handleFormSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
 
     if (files.length === 0) {
-      alert("Please select at least one file to upload.");
+      setError("Please select a file to upload.");
       return;
     }
 
-    console.log("Uploading files:", files);
+    const file = files[0];
+
+    try {
+      setIsUploading(true);
+      setError("");
+
+      const asset = await AssetsService.uploadAsset(file);
+
+      console.log("Asset uploaded successfully:", asset);
+
+      setFiles([]);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Upload failed. Please try again.",
+      );
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const removeFile = (fileToRemove: File) => {
     setFiles((previousFiles) =>
-      previousFiles.filter((file) => file !== fileToRemove)
+      previousFiles.filter((file) => file !== fileToRemove),
     );
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) { return "0 Bytes"; }
+    if (bytes === 0) {
+      return "0 Bytes";
+    }
 
     const units = ["Bytes", "KB", "MB", "GB"];
+
     const index = Math.floor(
-      Math.log(bytes) / Math.log(1024)
+      Math.log(bytes) / Math.log(1024),
     );
 
-    return `${(bytes / Math.pow(1024, index)).toFixed(
-      index === 0 ? 0 : 1
-    )} ${units[index]}`;
+    return `${(
+      bytes / Math.pow(1024, index)
+    ).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
   };
 
   const getFileIcon = (file: File) => {
@@ -79,26 +115,23 @@ function AssetUploader() {
 
   return (
     <div className="w-full">
-
       <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
 
         {/* Header */}
         <div className="mb-7 flex items-start justify-between">
-
           <div>
             <div className="flex items-center gap-3">
-
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50">
                 <UploadCloud className="h-5 w-5 text-indigo-600" />
               </div>
 
               <div>
                 <h2 className="text-lg font-bold tracking-tight text-slate-900">
-                  Upload assets
+                  Upload asset
                 </h2>
 
                 <p className="mt-0.5 text-xs text-slate-400">
-                  Add files to your asset library
+                  Add a file to your asset library
                 </p>
               </div>
             </div>
@@ -106,8 +139,7 @@ function AssetUploader() {
 
           {files.length > 0 && (
             <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
-              {files.length}{" "}
-              {files.length === 1 ? "file" : "files"}
+              1 file
             </span>
           )}
         </div>
@@ -116,6 +148,7 @@ function AssetUploader() {
           onSubmit={handleFormSubmit}
           encType="multipart/form-data"
         >
+          {/* Dropzone */}
           <div
             {...getRootProps()}
             className={`group relative flex min-h-65 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-300 ${isDragActive
@@ -125,7 +158,6 @@ function AssetUploader() {
           >
             <input {...getInputProps()} />
 
-            {/* Background decoration */}
             <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-indigo-100/40 blur-2xl transition-all group-hover:bg-indigo-200/50" />
 
             <div
@@ -139,8 +171,8 @@ function AssetUploader() {
 
             <h3 className="relative mt-5 text-sm font-semibold text-slate-700">
               {isDragActive
-                ? "Drop your files here"
-                : "Drag & drop your files here"}
+                ? "Drop your file here"
+                : "Drag & drop your file here"}
             </h3>
 
             <p className="relative mt-2 text-xs text-slate-400">
@@ -160,22 +192,22 @@ function AssetUploader() {
                   >
                     {type}
                   </span>
-                )
+                ),
               )}
             </div>
 
             <p className="relative mt-4 text-[10px] text-slate-400">
-              Maximum file size: 50 MB
+              Maximum file size: 10 MB
             </p>
           </div>
 
+          {/* Selected file */}
           {files.length > 0 && (
             <div className="mt-7">
-
               <div className="mb-3 flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-semibold text-slate-800">
-                    Selected files
+                    Selected file
                   </h3>
 
                   <p className="mt-0.5 text-xs text-slate-400">
@@ -184,8 +216,7 @@ function AssetUploader() {
                 </div>
 
                 <span className="text-xs font-medium text-slate-400">
-                  {files.length}{" "}
-                  {files.length === 1 ? "item" : "items"}
+                  1 item
                 </span>
               </div>
 
@@ -198,7 +229,6 @@ function AssetUploader() {
                       key={`${file.name}-${file.lastModified}`}
                       className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-colors hover:border-indigo-200 hover:bg-indigo-50/30"
                     >
-
                       {/* Icon */}
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50">
                         <FileIcon className="h-5 w-5 text-indigo-500" />
@@ -206,7 +236,6 @@ function AssetUploader() {
 
                       {/* File information */}
                       <div className="min-w-0 flex-1">
-
                         <p
                           title={file.name}
                           className="truncate text-sm font-medium text-slate-700"
@@ -230,7 +259,8 @@ function AssetUploader() {
                       <button
                         type="button"
                         onClick={() => removeFile(file)}
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 opacity-60 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
+                        disabled={isUploading}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 opacity-60 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-30"
                         aria-label={`Remove ${file.name}`}
                       >
                         <X className="h-4 w-4" />
@@ -242,17 +272,28 @@ function AssetUploader() {
             </div>
           )}
 
+          {/* Error */}
+          {error && (
+            <p className="mt-4 text-sm font-medium text-red-600">
+              {error}
+            </p>
+          )}
+
+          {/* Upload button */}
           <button
             type="submit"
-            disabled={files.length === 0}
+            disabled={
+              files.length === 0 || isUploading
+            }
             className="group mt-7 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition-all duration-200 hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-600/25 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
           >
             <UploadCloud className="h-4 w-4 transition-transform group-hover:-translate-y-0.5" />
 
-            {files.length === 0
-              ? "Select files to upload"
-              : `Upload ${files.length} ${files.length === 1 ? "asset" : "assets"
-              }`}
+            {isUploading
+              ? "Uploading..."
+              : files.length === 0
+                ? "Select a file to upload"
+                : "Upload asset"}
           </button>
         </form>
 
@@ -260,7 +301,7 @@ function AssetUploader() {
           <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
 
           <span>
-            Your files are securely uploaded and processed
+            Your file is securely uploaded and processed
           </span>
         </div>
       </div>

@@ -7,7 +7,7 @@ import AuthLayout from "../layouts/AuthLayout";
 import Register from "../pages/Register";
 import Gallery from "../pages/Gallery";
 
-function App() {
+function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
@@ -26,4 +26,4 @@ function App() {
   );
 }
 
-export default App;
+export default AppRoutes;

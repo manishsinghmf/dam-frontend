@@ -1,9 +1,31 @@
+export type AssetStatus =
+  | "uploading"
+  | "stored"
+  | "processing"
+  | "ready"
+  | "failed";
+
 export type Asset = {
-  id: number;
+  id: string;
+
+  ownerId: string;
+
   name: string;
-  type: "image" | "video" | "audio" | "document";
+
+  type: string;
+
   size: number;
-  status: "READY" | "PROCESSING" | "FAILED";
+
+  status: AssetStatus;
+
+  storage: {
+    bucket: string;
+    key: string;
+  };
+
   thumbnailUrl?: string;
+
   createdAt: string;
+
+  updatedAt: string;
 };

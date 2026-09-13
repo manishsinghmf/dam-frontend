@@ -3,20 +3,18 @@ import {
   Menu,
   Image as ImageIcon,
 } from "lucide-react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 
 function MainLayout() {
-  const location = useLocation();
+  const token = localStorage.getItem("token");
 
   const [sidebarOpen, setSidebarOpen] =
     useState<boolean>(false);
 
-  const isLoginPage =
-    location.pathname === "/login";
 
-  if (isLoginPage) {
-    return <Outlet />;
+  if (!token) {
+    return <Navigate to="/login" replace />;
   }
 
   return (

@@ -1,9 +1,11 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Images,
   X,
+  LogOut,
 } from "lucide-react";
+import { AuthService } from "../services/AuthService";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -14,6 +16,14 @@ function Sidebar({
   isOpen,
   onClose,
 }: SidebarProps) {
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    AuthService.logout();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <>
       {/* Mobile backdrop */}
@@ -82,7 +92,18 @@ function Sidebar({
             onClick={onClose}
           />
         </nav>
-      </aside>
+
+        <div className="border-t border-gray-200 p-4">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+          >
+            <LogOut size={20} />
+            Logout
+          </button>
+        </div>
+      </aside >
     </>
   );
 }
