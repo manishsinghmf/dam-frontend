@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   FileImage,
   FileVideo,
@@ -7,8 +6,7 @@ import {
   UploadCloud,
 } from "lucide-react";
 
-import { AssetsService } from "../services/AssetsService";
-import type { Asset } from "../types/Assets";
+import useDashboard from "../hooks/useDashboard";
 
 import StatCard from "../components/dashboard/StatCard";
 import RecentAssets from "../components/dashboard/RecentAssets";
@@ -16,74 +14,17 @@ import StorageCard from "../components/dashboard/StorageCard";
 import ProcessingCard from "../components/dashboard/ProcessingCard";
 
 function Dashboard() {
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const fetchAssets = async () => {
-    try {
-      setIsLoading(true);
-
-      const response =
-        await AssetsService.fetchAllAssets();
-
-      setAssets(response);
-    } catch (error) {
-      console.error(
-        "Error fetching dashboard assets:",
-        error
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAssets();
-  }, []);
-
-  /*
-   * These calculations are intentionally kept simple.
-   *
-   * We do not need useMemo here because these are inexpensive
-   * operations and the asset list is currently small.
-   */
-  const totalAssets = assets.length;
-
-  const images = assets.filter((asset) =>
-    asset.type?.toLowerCase().startsWith("image")
-  ).length;
-
-  const videos = assets.filter((asset) =>
-    asset.type?.toLowerCase().startsWith("video")
-  ).length;
-
-  const processing = assets.filter((asset) => {
-    const status = asset.status?.toLowerCase();
-
-    return (
-      status === "processing" ||
-      status === "pending"
-    );
-  }).length;
-
-  const failed = assets.filter((asset) => {
-    const status = asset.status?.toLowerCase();
-
-    return (
-      status === "failed" ||
-      status === "error"
-    );
-  }).length;
-
-  const ready = assets.filter((asset) => {
-    return asset.status?.toLowerCase() === "ready";
-  }).length;
-
-  const totalStorage = assets.reduce(
-    (total, asset) =>
-      total + (asset.size || 0),
-    0
-  );
+  const {
+    assets,
+    isLoading,
+    totalAssets,
+    images,
+    videos,
+    processing,
+    failed,
+    ready,
+    totalStorage,
+  } = useDashboard();
 
   return (
     <div className="mx-auto w-full max-w-7xl">
@@ -183,16 +124,13 @@ function formatFileSize(bytes: number): string {
   ];
 
   const index = Math.min(
-    Math.floor(
-      Math.log(bytes) / Math.log(1024)
-    ),
+    Math.floor(Math.log(bytes) / Math.log(1024)),
     units.length - 1
   );
 
   return `${(
     bytes / Math.pow(1024, index)
-  ).toFixed(index === 0 ? 0 : 1)} ${units[index]
-    }`;
+  ).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
 }
 
 export default Dashboard;

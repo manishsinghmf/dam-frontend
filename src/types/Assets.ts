@@ -14,6 +14,8 @@ export type Asset = {
 
   type: string;
 
+  mimeType: string;
+
   size: number;
 
   status: AssetStatus;
@@ -23,7 +25,10 @@ export type Asset = {
     key: string;
   };
 
-  thumbnailUrl?: string;
+  thumbnailUrl: string | null;
+  video720pUrl: string | null;
+  video1080pUrl: string | null;
+  originalUrl: string | null;
 
   createdAt: string;
 

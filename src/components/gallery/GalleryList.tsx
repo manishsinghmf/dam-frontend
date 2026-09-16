@@ -59,15 +59,15 @@ interface GalleryListItemProps {
 function GalleryListItem({
   asset,
 }: GalleryListItemProps) {
-  const type = asset.type?.toLowerCase() ?? "";
 
-  const Icon = type.startsWith("image/")
-    ? FileImage
-    : type.startsWith("video/")
-      ? FileVideo
-      : type.startsWith("audio/")
-        ? FileAudio
-        : File;
+  const Icon =
+    asset.type === "image"
+      ? FileImage
+      : asset.type === "video"
+        ? FileVideo
+        : asset.type === "audio"
+          ? FileAudio
+          : File;
 
   return (
     <tr className="transition-colors hover:bg-slate-50/70">

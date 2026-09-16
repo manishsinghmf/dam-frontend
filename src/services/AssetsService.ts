@@ -1,20 +1,83 @@
-import type { Asset, AssetStatus } from "../types/Assets";
+import type {
+  Asset,
+  AssetStatus,
+} from "../types/Assets";
+
 import { apiClient } from "./ApiClient";
 
-type BackendAsset = {
-  _id: string;
+interface BackendAsset {
+  id: string;
+
   ownerId: string;
-  originalName: string;
+
+  name: string;
+
   mimeType: string;
+
   size: number;
+
   status: AssetStatus;
+
   storage: {
     bucket: string;
     key: string;
   };
+
+  derivatives?: {
+    thumbnail?: {
+      mimeType: string;
+      width?: number;
+      height?: number;
+      size?: number;
+    } | null;
+
+    video720p?: {
+      mimeType: string;
+      width?: number;
+      height?: number;
+      size?: number;
+    } | null;
+
+    video1080p?: {
+      mimeType: string;
+      width?: number;
+      height?: number;
+      size?: number;
+    } | null;
+  };
+
+  thumbnailUrl: string | null;
+
+  video720pUrl: string | null;
+
+  video1080pUrl: string | null;
+
+  originalUrl: string | null;
+
   createdAt: string;
+
   updatedAt: string;
-};
+}
+
+export interface AssetPagination {
+  page: number;
+
+  limit: number;
+
+  total: number;
+
+  totalPages: number;
+
+  hasNextPage: boolean;
+
+  hasPreviousPage: boolean;
+}
+
+export interface AssetsResponse {
+  assets: Asset[];
+
+  pagination: AssetPagination;
+}
 
 type UploadAssetResponse = {
   asset: BackendAsset;
@@ -42,54 +105,104 @@ const mapAsset = (
   asset: BackendAsset,
 ): Asset => {
   return {
-    id: asset._id,
+    id: asset.id,
+
     ownerId: asset.ownerId,
-    name: asset.originalName,
-    type: getAssetType(asset.mimeType),
+
+    name: asset.name,
+
+    type: getAssetType(
+      asset.mimeType,
+    ),
+
+    mimeType: asset.mimeType,
+
     size: asset.size,
+
     status: asset.status,
+
     storage: asset.storage,
+
+    thumbnailUrl: asset.thumbnailUrl,
+
+    video720pUrl:
+      asset.video720pUrl,
+
+    video1080pUrl:
+      asset.video1080pUrl,
+
+    originalUrl:
+      asset.originalUrl,
+
     createdAt: asset.createdAt,
+
     updatedAt: asset.updatedAt,
   };
 };
 
 export const AssetsService = {
-  async fetchAllAssets(): Promise<Asset[]> {
-    const token = localStorage.getItem("token");
+  async fetchAllAssets({
+    page = 1,
+    limit = 6,
+  }: {
+    page?: number;
+    limit?: number;
+  }): Promise<AssetsResponse> {
+    const token =
+      localStorage.getItem("token");
 
     if (!token) {
-      throw new Error("Authentication required");
-    }
-
-    const response = await apiClient(
-      `/api/asset`,
-      {
-        method: "GET"
-      },
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
       throw new Error(
-        data.message || "Failed to fetch assets",
+        "Authentication required",
       );
     }
 
-    return data.assets.map(mapAsset);
-  },
+    const response = await apiClient(
+      `/api/asset?page=${page}&limit=${limit}`,
+      {
+        method: "GET",
+      },
+    );
 
-  async uploadAsset(file: File): Promise<Asset> {
-    const token = localStorage.getItem("token");
+    const data =
+      await response.json();
 
-    if (!token) {
-      throw new Error("Authentication required");
+    if (!response.ok) {
+      throw new Error(
+        data.message ||
+        "Failed to fetch assets",
+      );
     }
 
-    const formData = new FormData();
+    return {
+      assets: data.assets.map(
+        mapAsset,
+      ),
 
-    formData.append("file", file);
+      pagination:
+        data.pagination,
+    };
+  },
+
+  async uploadAsset(
+    file: File,
+  ): Promise<Asset> {
+    const token =
+      localStorage.getItem("token");
+
+    if (!token) {
+      throw new Error(
+        "Authentication required",
+      );
+    }
+
+    const formData =
+      new FormData();
+
+    formData.append(
+      "file",
+      file,
+    );
 
     const response = await apiClient(
       `/api/asset`,
@@ -99,15 +212,22 @@ export const AssetsService = {
       },
     );
 
-    const data: UploadAssetResponse = await response.json();
+    const data: UploadAssetResponse =
+      await response.json();
 
     if (!response.ok) {
       throw new Error(
-        (data as { message?: string }).message ||
+        (
+          data as {
+            message?: string;
+          }
+        ).message ||
         "Failed to upload asset",
       );
     }
 
-    return mapAsset(data.asset);
+    return mapAsset(
+      data.asset,
+    );
   },
 };

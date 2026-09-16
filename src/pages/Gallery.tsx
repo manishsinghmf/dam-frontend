@@ -7,6 +7,7 @@ import GalleryList from "../components/gallery/GalleryList";
 import GalleryResultInfo from "../components/gallery/GalleryResultInfo";
 import GallerySkeleton from "../components/gallery/GallerySkeleton";
 import GalleryToolbar from "../components/gallery/GalleryToolbar";
+import GalleryPagination from "../components/gallery/GalleryPagination";
 
 
 function Gallery() {
@@ -32,6 +33,8 @@ function Gallery() {
 
     refreshAssets,
     clearFilters,
+    pagination: { page, totalPages, total, limit },
+    goToPage,
   } = useGallery();
 
   const handleUpload = () => {
@@ -90,6 +93,17 @@ function Gallery() {
         viewMode === "list" && (
           <GalleryList
             assets={filteredAssets}
+          />
+        )}
+
+      {!isLoading &&
+        filteredAssets.length > 0 && (
+          <GalleryPagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            limit={limit}
+            onPageChange={goToPage}
           />
         )}
     </div>

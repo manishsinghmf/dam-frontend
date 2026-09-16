@@ -28,15 +28,28 @@ function useGallery() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 6,
+    total: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  });
+
   useEffect(() => {
     let isMounted = true;
 
     const loadAssets = async () => {
       try {
-        const response = await AssetsService.fetchAllAssets();
+        const response = await AssetsService.fetchAllAssets({
+          page: pagination.page,
+          limit: pagination.limit,
+        });
 
         if (isMounted) {
-          setAssets(response);
+          setAssets(response.assets);
+          setPagination(response.pagination);
         }
       } catch (error) {
         console.error("Error fetching gallery assets:", error);
@@ -52,20 +65,39 @@ function useGallery() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [pagination.limit, pagination.page]);
 
   const refreshAssets = async () => {
     try {
       setIsRefreshing(true);
 
-      const response = await AssetsService.fetchAllAssets();
+      const response = await AssetsService.fetchAllAssets({
+        page: pagination.page,
+        limit: pagination.limit,
+      });
 
-      setAssets(response);
+      setAssets(response.assets);
+      setPagination(response.pagination);
     } catch (error) {
       console.error("Error refreshing gallery assets:", error);
     } finally {
       setIsRefreshing(false);
     }
+  };
+
+  const goToPage = (nextPage: number) => {
+    if (
+      !Number.isInteger(nextPage) ||
+      nextPage < 1 ||
+      nextPage > pagination.totalPages
+    ) {
+      return;
+    }
+
+    setPagination((current) => ({
+      ...current,
+      page: nextPage,
+    }));
   };
 
   const clearFilters = () => {
@@ -144,6 +176,8 @@ function useGallery() {
 
     refreshAssets,
     clearFilters,
+    pagination,
+    goToPage,
   };
 }
 
