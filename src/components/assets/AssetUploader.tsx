@@ -28,14 +28,7 @@ function AssetUploader() {
     event.preventDefault();
 
     try {
-      const assets = await uploadFiles();
-
-      if (assets.length > 0) {
-        console.log(
-          "Assets uploaded successfully:",
-          assets,
-        );
-      }
+      await uploadFiles();
     } catch (error) {
       console.error(
         "Error uploading assets:",

@@ -187,10 +187,7 @@ export const AssetsService = {
   async uploadAssets(
     files: File[],
   ): Promise<Asset[]> {
-    console.log(
-      "Uploading files:",
-      files,
-    );
+
     const token =
       localStorage.getItem("token");
 

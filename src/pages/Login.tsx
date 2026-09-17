@@ -49,8 +49,6 @@ const Login = () => {
         password,
       });
 
-      console.log("Login successful:", response);
-
       navigate("/");
     } catch (error) {
       setError(
