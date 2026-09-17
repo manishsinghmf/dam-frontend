@@ -10,6 +10,7 @@ import {
   HardDrive,
   Play,
   Check,
+  Eye,
 } from "lucide-react";
 
 import type { Asset } from "../../types/Assets";
@@ -335,18 +336,34 @@ function AssetCard({
         </div>
 
         {/* Metadata */}
-        <div className="mt-4 flex items-center gap-4 border-t border-slate-100 pt-3">
-          <div className="flex items-center gap-1.5 text-xs text-slate-500">
-            <HardDrive className="h-3.5 w-3.5 text-slate-400" />
+        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+          {/* Metadata */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+              <HardDrive className="h-3.5 w-3.5 text-slate-400" />
 
-            {formatFileSize(asset.size)}
+              {formatFileSize(asset.size)}
+            </div>
+
+            <div className="h-1 w-1 rounded-full bg-slate-300" />
+
+            <span className="text-xs text-slate-400">
+              Asset
+            </span>
           </div>
 
-          <div className="h-1 w-1 rounded-full bg-slate-300" />
-
-          <span className="text-xs text-slate-400">
-            Asset
-          </span>
+          {/* Preview */}
+          {asset.originalUrl && (
+            <a
+              href={asset.originalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+            >
+              <Eye className="h-3.5 w-3.5" />
+              Preview
+            </a>
+          )}
         </div>
 
         <div className="mt-4">

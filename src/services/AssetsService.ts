@@ -184,9 +184,13 @@ export const AssetsService = {
     };
   },
 
-  async uploadAsset(
-    file: File,
-  ): Promise<Asset> {
+  async uploadAssets(
+    files: File[],
+  ): Promise<Asset[]> {
+    console.log(
+      "Uploading files:",
+      files,
+    );
     const token =
       localStorage.getItem("token");
 
@@ -196,13 +200,12 @@ export const AssetsService = {
       );
     }
 
-    const formData =
-      new FormData();
+    if (files.length === 0) { throw new Error("At least one file is required",); }
 
-    formData.append(
-      "file",
-      file,
-    );
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("files", file,);
+    });
 
     const response = await apiClient(
       `/api/asset`,
@@ -212,8 +215,7 @@ export const AssetsService = {
       },
     );
 
-    const data: UploadAssetResponse =
-      await response.json();
+    const data = await response.json();
 
     if (!response.ok) {
       throw new Error(
@@ -225,9 +227,7 @@ export const AssetsService = {
         "Failed to upload asset",
       );
     }
+    return data.assets.map(mapAsset,);
 
-    return mapAsset(
-      data.asset,
-    );
   },
 };
