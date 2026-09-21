@@ -3,7 +3,7 @@ import { AssetsService } from "../services/AssetsService";
 import type { Asset } from "../types/Assets";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const MAX_FILES = 10;
+const MAX_FILES = 20;
 
 function useAssetUpload() {
   const [files, setFiles] = useState<File[]>([]);

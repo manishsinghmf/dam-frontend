@@ -26,6 +26,13 @@ function UploadDropzone({
     maxSize: maxFileSize,
     disabled: isUploading,
 
+    accept: {
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/png": [".png"],
+      "image/webp": [".webp"],
+      "video/mp4": [".mp4"],
+    },
+
     onDrop: (acceptedFiles) => {
       onFilesSelected(acceptedFiles);
     },
@@ -77,22 +84,20 @@ function UploadDropzone({
   return (
     <div
       {...getRootProps()}
-      className={`group relative flex min-h-65 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-300 ${
-        isDragActive
+      className={`group relative flex min-h-65 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-300 ${isDragActive
           ? "border-indigo-500 bg-indigo-50/80"
           : "border-slate-200 bg-slate-50/60 hover:border-indigo-300 hover:bg-indigo-50/30"
-      }`}
+        }`}
     >
       <input {...getInputProps()} />
 
       <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-indigo-100/40 blur-2xl transition-all group-hover:bg-indigo-200/50" />
 
       <div
-        className={`relative flex h-16 w-16 items-center justify-center rounded-2xl transition-all duration-300 ${
-          isDragActive
+        className={`relative flex h-16 w-16 items-center justify-center rounded-2xl transition-all duration-300 ${isDragActive
             ? "scale-110 bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
             : "bg-white text-indigo-500 shadow-sm ring-1 ring-slate-200 group-hover:scale-105 group-hover:shadow-md"
-        }`}
+          }`}
       >
         <UploadCloud className="h-7 w-7" />
       </div>

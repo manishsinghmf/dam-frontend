@@ -1,29 +1,57 @@
 import { useEffect, useState } from "react";
 
-import { AssetsService } from "../services/AssetsService";
-import type { Asset } from "../types/Assets";
+import { AssetsService, type AssetStatistics } from "../services/AssetsService";
+import type {
+  Asset,
+} from "../types/Assets";
+
+const INITIAL_STATISTICS: AssetStatistics = {
+  totalAssets: 0,
+  images: 0,
+  videos: 0,
+  processing: 0,
+  failed: 0,
+  ready: 0,
+  totalStorage: 0,
+};
 
 function useDashboard() {
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [assets, setAssets] =
+    useState<Asset[]>([]);
+
+  const [statistics, setStatistics] =
+    useState<AssetStatistics>(
+      INITIAL_STATISTICS,
+    );
+
+  const [isLoading, setIsLoading] =
+    useState(true);
 
   useEffect(() => {
     let isMounted = true;
 
-    const fetchAssets = async () => {
+    const loadDashboard = async () => {
       try {
-        const response = await AssetsService.fetchAllAssets({
-          page: 1,
-          limit: 6,
-        });
+        const response =
+          await AssetsService.fetchAllAssets({
+            page: 1,
+            limit: 6,
+          });
 
-        if (isMounted) {
-          setAssets(response.assets);
+        if (!isMounted) {
+          return;
         }
+
+        setAssets(response.assets);
+        setStatistics(response.statistics);
       } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
         console.error(
           "Error fetching dashboard assets:",
-          error
+          error,
         );
       } finally {
         if (isMounted) {
@@ -32,61 +60,37 @@ function useDashboard() {
       }
     };
 
-    fetchAssets();
+    loadDashboard();
 
     return () => {
       isMounted = false;
     };
   }, []);
 
-  const totalAssets = assets.length;
-
-  const images = assets.filter(
-    (asset) => asset.type === "image"
-  ).length;
-
-  const videos = assets.filter(
-    (asset) => asset.type === "video"
-  ).length;
-
-  const processing = assets.filter((asset) => {
-    const status = asset.status?.toLowerCase();
-
-    return (
-      status === "processing" ||
-      status === "pending"
-    );
-  }).length;
-
-  const failed = assets.filter((asset) => {
-    const status = asset.status?.toLowerCase();
-
-    return (
-      status === "failed" ||
-      status === "error"
-    );
-  }).length;
-
-  const ready = assets.filter(
-    (asset) => asset.status?.toLowerCase() === "ready"
-  ).length;
-
-  const totalStorage = assets.reduce(
-    (total, asset) => total + (asset.size || 0),
-    0
-  );
-
   return {
     assets,
     isLoading,
 
-    totalAssets,
-    images,
-    videos,
-    processing,
-    failed,
-    ready,
-    totalStorage,
+    totalAssets:
+      statistics.totalAssets,
+
+    images:
+      statistics.images,
+
+    videos:
+      statistics.videos,
+
+    processing:
+      statistics.processing,
+
+    failed:
+      statistics.failed,
+
+    ready:
+      statistics.ready,
+
+    totalStorage:
+      statistics.totalStorage,
   };
 }
 

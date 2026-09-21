@@ -73,15 +73,23 @@ export interface AssetPagination {
   hasPreviousPage: boolean;
 }
 
+export interface AssetStatistics {
+  totalAssets: number;
+  images: number;
+  videos: number;
+  processing: number;
+  failed: number;
+  ready: number;
+  totalStorage: number;
+}
+
 export interface AssetsResponse {
   assets: Asset[];
 
   pagination: AssetPagination;
-}
 
-type UploadAssetResponse = {
-  asset: BackendAsset;
-};
+  statistics: AssetStatistics;
+}
 
 const getAssetType = (
   mimeType: string,
@@ -181,6 +189,8 @@ export const AssetsService = {
 
       pagination:
         data.pagination,
+
+      statistics: data.statistics,
     };
   },
 
