@@ -44,7 +44,7 @@ const Login = () => {
         return;
       }
 
-      const response = await AuthService.login({
+      await AuthService.login({
         email,
         password,
       });
